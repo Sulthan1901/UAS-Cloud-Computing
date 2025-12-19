@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Pengaduan Masyarakat</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: white;
+      border-radius: 10px;
+      padding: 30px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    h1,
+    h2 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #555;
+      font-weight: 600;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    button {
+      background: #667eea;
+      color: white;
+      padding: 12px 30px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #5568d3;
+    }
+
+    button.secondary {
+      background: #6c757d;
+      margin-left: 10px;
+    }
+
+    button.secondary:hover {
+      background: #5a6268;
+    }
+
+    button.danger {
+      background: #dc3545;
+    }
+
+    button.danger:hover {
+      background: #c82333;
+    }
+
+    .nav {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .complaint-card {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      border-left: 5px solid #667eea;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .complaint-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 0;
+    }
+
+    .complaint-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .complaint-card:hover::before {
+      opacity: 1;
+    }
+
+    .complaint-card>* {
+      position: relative;
+      z-index: 1;
+    }
+
+
+    .complaint-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .complaint-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .badge {
+      padding: 5px 10px;
+      border-radius: 15px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge.pending {
+      background: #ffc107;
+      color: #000;
+    }
+
+    .badge.in_progress {
+      background: #17a2b8;
+      color: #fff;
+    }
+
+    .badge.resolved {
+      background: #28a745;
+      color: #fff;
+    }
+
+    .badge.rejected {
+      background: #dc3545;
+      color: #fff;
+    }
+
+    .complaint-meta {
+      color: #666;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-number {
+      font-size: 32px;
+      font-weight: bold;
+      color: #667eea;
+    }
+
+    .stat-label {
+      color: #666;
+      margin-top: 5px;
+    }
+
+    .user-info {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .alert {
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+
+    .alert.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .alert.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .logs {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+    }
+
+    .log-item {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .log-item:last-child {
+      border-bottom: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <!-- Login Section -->
+    <div id="loginSection" class="card">
+      <h1>Sistem Pengaduan Masyarakat</h1>
+      <div id="alertBox"></div>
+
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="loginUsername" placeholder="Masukkan username">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="Masukkan password">
+      </div>
+      <button onclick="login()">Login</button>
+      <button class="secondary" onclick="showRegister()">Daftar</button>
+    </div>
+
+    <!-- Register Section -->
+    <div id="registerSection" class="card hidden">
+      <h1>Daftar Akun Baru</h1>
+      <div id="registerAlert"></div>
+
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="regUsername" placeholder="Username">
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="regEmail" placeholder="Email">
+      </div>
+      <div class="form-group">
+        <label>Nama Lengkap</label>
+        <input type="text" id="regFullName" placeholder="Nama Lengkap">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="regPassword" placeholder="Password">
+      </div>
+      <button onclick="register()">Daftar</button>
+      <button class="secondary" onclick="showLogin()">Kembali ke Login</button>
+    </div>
+
+    <!-- Main App Section -->
+    <div id="appSection" class="hidden">
+      <div class="user-info">
+        <div>
+          <strong id="userName"></strong> | <span id="userRole"></span>
+        </div>
+        <button class="secondary" onclick="logout()">Logout</button>
+      </div>
+
+      <!-- Admin Stats -->
+      <div id="statsSection" class="hidden">
+        <div class="stats">
+          <div class="stat-card">
+            <div class="stat-number" id="statTotal">0</div>
+            <div class="stat-label">Total Pengaduan</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="statPending">0</div>
+            <div class="stat-label">Pending</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="statInProgress">0</div>
+            <div class="stat-label">Diproses</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="statResolved">0</div>
+            <div class="stat-label">Selesai</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="nav">
+          <button onclick="showComplaintList()">Daftar Pengaduan</button>
+          <button onclick="showComplaintForm()">Buat Pengaduan Baru</button>
+        </div>
+
+        <!-- Complaint List -->
+        <div id="complaintList">
+          <h2>Daftar Pengaduan</h2>
+          <div id="complaintContainer"></div>
+        </div>
+
+        <!-- Complaint Form -->
+        <div id="complaintForm" class="hidden">
+          <h2>Buat Pengaduan Baru</h2>
+          <div id="formAlert"></div>
+
+          <div class="form-group">
+            <label>Judul Pengaduan</label>
+            <input type="text" id="complaintTitle" placeholder="Judul pengaduan">
+          </div>
+          <div class="form-group">
+            <label>Kategori</label>
+            <select id="complaintCategory">
+              <option value="infrastruktur">Infrastruktur</option>
+              <option value="pelayanan">Pelayanan Publik</option>
+              <option value="kebersihan">Kebersihan</option>
+              <option value="keamanan">Keamanan</option>
+              <option value="lainnya">Lainnya</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Prioritas</label>
+            <select id="complaintPriority">
+              <option value="low">Rendah</option>
+              <option value="medium">Sedang</option>
+              <option value="high">Tinggi</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Lokasi</label>
+            <input type="text" id="complaintLocation" placeholder="Lokasi kejadian">
+          </div>
+          <div class="form-group">
+            <label>Deskripsi</label>
+            <textarea id="complaintDescription" placeholder="Jelaskan pengaduan Anda secara detail"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Lampiran (Opsional, maks 5 file)</label>
+            <input type="file" id="complaintAttachments" multiple accept="image/*,.pdf">
+          </div>
+          <button onclick="submitComplaint()">Kirim Pengaduan</button>
+          <button class="secondary" onclick="showComplaintList()">Batal</button>
+        </div>
+
+        <!-- Complaint Detail -->
+        <div id="complaintDetail" class="hidden">
+          <button class="secondary" onclick="showComplaintList()">Kembali</button>
+          <div id="detailContent"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:3000/api';
+    let token = null;
+    let currentUser = null;
+
+    function showAlert(elementId, message, type = 'success') {
+      const alertBox = document.getElementById(elementId);
+      alertBox.innerHTML = `<div class="alert ${type}">${message}</div>`;
+      setTimeout(() => alertBox.innerHTML = '', 5000);
+    }
+
+    function showLogin() {
+      document.getElementById('loginSection').classList.remove('hidden');
+      document.getElementById('registerSection').classList.add('hidden');
+    }
+
+    function showRegister() {
+      document.getElementById('loginSection').classList.add('hidden');
+      document.getElementById('registerSection').classList.remove('hidden');
+    }
+
+    async function register() {
+      const username = document.getElementById('regUsername').value;
+      const email = document.getElementById('regEmail').value;
+      const full_name = document.getElementById('regFullName').value;
+      const password = document.getElementById('regPassword').value;
+
+      if (!username || !email || !full_name || !password) {
+        showAlert('registerAlert', 'Semua field harus diisi!', 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_URL}/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, email, full_name, password })
+        });
+
+        if (response.ok) {
+          showAlert('registerAlert', 'Registrasi berhasil! Silakan login.', 'success');
+          setTimeout(showLogin, 2000);
+        } else {
+          const data = await response.json();
+          showAlert('registerAlert', data.error || 'Registrasi gagal', 'error');
+        }
+      } catch (error) {
+        showAlert('registerAlert', 'Terjadi kesalahan: ' + error.message, 'error');
+      }
+    }
+
+    async function login() {
+      const username = document.getElementById('loginUsername').value;
+      const password = document.getElementById('loginPassword').value;
+
+      if (!username || !password) {
+        showAlert('alertBox', 'Username dan password harus diisi!', 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_URL}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          token = data.token;
+          currentUser = data.user;
+
+          document.getElementById('loginSection').classList.add('hidden');
+          document.getElementById('appSection').classList.remove('hidden');
+          document.getElementById('userName').textContent = currentUser.full_name;
+          document.getElementById('userRole').textContent = currentUser.role.toUpperCase();
+
+          if (currentUser.role === 'admin') {
+            document.getElementById('statsSection').classList.remove('hidden');
+            loadStats();
+          }
+
+          loadComplaints();
+        } else {
+          const data = await response.json();
+          showAlert('alertBox', data.error || 'Login gagal', 'error');
+        }
+      } catch (error) {
+        showAlert('alertBox', 'Terjadi kesalahan: ' + error.message, 'error');
+      }
+    }
+
+    function logout() {
+      fetch(`${API_URL}/auth/logout`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      token = null;
+      currentUser = null;
+      document.getElementById('appSection').classList.add('hidden');
+      document.getElementById('loginSection').classList.remove('hidden');
+      document.getElementById('loginUsername').value = '';
+      document.getElementById('loginPassword').value = '';
+    }
+
+    async function loadStats() {
+      try {
+        const response = await fetch(`${API_URL}/stats`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          document.getElementById('statTotal').textContent = data.total;
+          document.getElementById('statPending').textContent = data.pending;
+          document.getElementById('statInProgress').textContent = data.in_progress;
+          document.getElementById('statResolved').textContent = data.resolved;
+        }
+      } catch (error) {
+        console.error('Error loading stats:', error);
+      }
+    }
+
+    async function loadComplaints() {
+      try {
+        const response = await fetch(`${API_URL}/complaints?page=1&limit=50`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log('API Response:', data);  // DEBUG
+          displayComplaints(data.complaints || []);  // ← FIX: Ambil .complaints
+        } else {
+          console.error('API Error:', response.status, await response.text());
+        }
+      } catch (error) {
+        console.error('Network Error:', error);
+      }
+    }
+
+    function displayComplaints(complaints) {
+      const container = document.getElementById('complaintContainer');
+
+      if (!complaints || complaints.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:#666; padding:40px;">Belum ada pengaduan atau tidak ada akses.</p>';
+        return;
+      }
+
+      container.innerHTML = complaints.map(c => `
+        <div class="complaint-card" onclick="viewComplaint('${c._id}')">
+            <div class="complaint-header">
+                <div class="complaint-title">${c.title || 'Tanpa Judul'}</div>
+                <span class="badge ${c.status}">${getStatusText(c.status)}</span>
+            </div>
+            <p>${(c.description || '').substring(0, 100)}${(c.description || '').length > 100 ? '...' : ''}</p>
+            <div class="complaint-meta">
+                Kategori: ${c.category || '-'} | 
+                Lokasi: ${c.location || '-'} | 
+                ${new Date(c.created_at).toLocaleDateString('id-ID')}
+            </div>
+        </div>
+    `).join('');
+
+      console.log(`✅ Loaded ${complaints.length} complaints`);  // DEBUG
+    }
+
+
+    function displayComplaints(complaints) {
+      const container = document.getElementById('complaintContainer');
+
+      if (complaints.length === 0) {
+        container.innerHTML = '<p>Belum ada pengaduan.</p>';
+        return;
+      }
+
+      container.innerHTML = complaints.map(c => `
+                <div class="complaint-card" onclick="viewComplaint('${c._id}')">
+                    <div class="complaint-header">
+                        <div class="complaint-title">${c.title}</div>
+                        <span class="badge ${c.status}">${getStatusText(c.status)}</span>
+                    </div>
+                    <p>${c.description.substring(0, 100)}...</p>
+                    <div class="complaint-meta">
+                        Kategori: ${c.category} | Lokasi: ${c.location || '-'} | 
+                        ${new Date(c.created_at).toLocaleDateString('id-ID')}
+                    </div>
+                </div>
+            `).join('');
+    }
+
+    function getStatusText(status) {
+      const statusMap = {
+        'pending': 'Pending',
+        'in_progress': 'Diproses',
+        'resolved': 'Selesai',
+        'rejected': 'Ditolak'
+      };
+      return statusMap[status] || status;
+    }
+
+    async function viewComplaint(id) {
+      try {
+        const response = await fetch(`${API_URL}/complaints/${id}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          displayComplaintDetail(data);
+        }
+      } catch (error) {
+        console.error('Error loading complaint detail:', error);
+      }
+    }
+
+    function displayComplaintDetail(data) {
+      const { complaint, logs, attachments } = data;
+
+      let html = `
+                <h2>${complaint.title}</h2>
+                <div class="complaint-meta">
+                    Status: <span class="badge ${complaint.status}">${getStatusText(complaint.status)}</span> | 
+                    Prioritas: ${complaint.priority} | 
+                    Dibuat: ${new Date(complaint.created_at).toLocaleDateString('id-ID')}
+                </div>
+                <p style="margin-top: 15px;"><strong>Kategori:</strong> ${complaint.category}</p>
+                <p><strong>Lokasi:</strong> ${complaint.location || '-'}</p>
+                <p><strong>Deskripsi:</strong></p>
+                <p>${complaint.description}</p>
+            `;
+
+      if (attachments.length > 0) {
+        html += '<p><strong>Lampiran:</strong></p><ul>';
+        attachments.forEach(att => {
+          html += `<li>${att.original_name}</li>`;
+        });
+        html += '</ul>';
+      }
+
+      if (currentUser.role === 'admin') {
+        html += `
+                    <div style="margin-top: 20px;">
+                        <h3>Ubah Status</h3>
+                        <select id="newStatus">
+                            <option value="pending" ${complaint.status === 'pending' ? 'selected' : ''}>Pending</option>
+                            <option value="in_progress" ${complaint.status === 'in_progress' ? 'selected' : ''}>Diproses</option>
+                            <option value="resolved" ${complaint.status === 'resolved' ? 'selected' : ''}>Selesai</option>
+                            <option value="rejected" ${complaint.status === 'rejected' ? 'selected' : ''}>Ditolak</option>
+                        </select>
+                        <input type="text" id="statusComment" placeholder="Komentar (opsional)" style="margin-top: 10px;">
+                        <button onclick="updateStatus('${complaint._id}')" style="margin-top: 10px;">Update Status</button>
+                    </div>
+                `;
+      }
+
+      if (logs.length > 0) {
+        html += '<div class="logs"><h3>Riwayat</h3>';
+        logs.forEach(log => {
+          html += `
+                        <div class="log-item">
+                            <strong>${log.action}</strong> 
+                            ${log.old_status ? `dari ${log.old_status} ke ${log.new_status}` : ''}
+                            ${log.comment ? `<br><em>${log.comment}</em>` : ''}
+                            <br><small>${new Date(log.created_at).toLocaleString('id-ID')}</small>
+                        </div>
+                    `;
+        });
+        html += '</div>';
+      }
+
+      document.getElementById('detailContent').innerHTML = html;
+      document.getElementById('complaintList').classList.add('hidden');
+      document.getElementById('complaintDetail').classList.remove('hidden');
+    }
+
+    async function updateStatus(complaintId) {
+      const status = document.getElementById('newStatus').value;
+      const comment = document.getElementById('statusComment').value;
+
+      try {
+        const response = await fetch(`${API_URL}/complaints/${complaintId}/status`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ status, comment })
+        });
+
+        if (response.ok) {
+          alert('Status berhasil diupdate!');
+          viewComplaint(complaintId);
+          if (currentUser.role === 'admin') loadStats();
+        }
+      } catch (error) {
+        alert('Gagal update status: ' + error.message);
+      }
+    }
+
+    function showComplaintList() {
+      document.getElementById('complaintList').classList.remove('hidden');
+      document.getElementById('complaintForm').classList.add('hidden');
+      document.getElementById('complaintDetail').classList.add('hidden');
+      loadComplaints();
+    }
+
+    function showComplaintForm() {
+      document.getElementById('complaintList').classList.add('hidden');
+      document.getElementById('complaintForm').classList.remove('hidden');
+      document.getElementById('complaintDetail').classList.add('hidden');
+    }
+
+    async function submitComplaint() {
+      const title = document.getElementById('complaintTitle').value;
+      const category = document.getElementById('complaintCategory').value;
+      const priority = document.getElementById('complaintPriority').value;
+      const location = document.getElementById('complaintLocation').value;
+      const description = document.getElementById('complaintDescription').value;
+      const files = document.getElementById('complaintAttachments').files;
+
+      if (!title || !description) {
+        showAlert('formAlert', 'Judul dan deskripsi harus diisi!', 'error');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('category', category);
+      formData.append('priority', priority);
+      formData.append('location', location);
+      formData.append('description', description);
+
+      for (let i = 0; i < files.length; i++) {
+        formData.append('attachments', files[i]);
+      }
+
+      try {
+        const response = await fetch(`${API_URL}/complaints`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+          body: formData
+        });
+
+        if (response.ok) {
+          showAlert('formAlert', 'Pengaduan berhasil dikirim!', 'success');
+          setTimeout(() => {
+            document.getElementById('complaintTitle').value = '';
+            document.getElementById('complaintDescription').value = '';
+            document.getElementById('complaintLocation').value = '';
+            document.getElementById('complaintAttachments').value = '';
+            showComplaintList();
+          }, 2000);
+        } else {
+          const data = await response.json();
+          showAlert('formAlert', data.error || 'Gagal mengirim pengaduan', 'error');
+        }
+      } catch (error) {
+        showAlert('formAlert', 'Terjadi kesalahan: ' + error.message, 'error');
+      }
+    }
+  </script>
+</body>
+
+</html>
